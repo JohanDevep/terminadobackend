@@ -21,10 +21,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+// Controlador para manejar las operaciones de autenticación y registro de usuarios.
+
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/auth/")
 public class RestControllerAuth {
+    // Se inyectan los servicios necesarios para la autenticación y registro de usuarios.
 
     @Autowired
     private Authservice authservice;
@@ -34,6 +37,8 @@ public class RestControllerAuth {
     private UsuariosRepository usuariosRepository;
     private JwtGenerador jwtGenerador;
     @Autowired
+
+    // Constructor que inicializa los servicios requeridos para la autenticación y registro.
 
     public RestControllerAuth(AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder, RoleRepository rolesRepository, UsuariosRepository usuariosRepository, JwtGenerador jwtGenerador) {
         this.authenticationManager = authenticationManager;
@@ -62,14 +67,20 @@ public class RestControllerAuth {
     public List<Usuarios> getAllUsers() {
         return authservice.getAllUsers();
     }
+    // Método para obtener un usuario por su ID.
+
     @GetMapping("/usuariosver/{id}")
     public ResponseEntity<?> getEmployee(@PathVariable Long id){
         return authservice.getEmployee(id);
     }
+    // Método para obtener el perfil del usuario logueado.
+
     @GetMapping("/perfil")
     public ResponseEntity<DtoPerfil> getPerfil(Principal principal) {
         return authservice.getPerfil(principal);
     }
+    // Método para editar el perfil del usuario logueado.
+
     @PutMapping("/perfil/editar")
     public ResponseEntity<Object> editarPerfil(@RequestBody DtoPerfil dtoPerfil, Principal principal){
         return authservice.editarPerfil(dtoPerfil, principal);

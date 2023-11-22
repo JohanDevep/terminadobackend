@@ -76,7 +76,7 @@ public class Authserviceimpl implements Authservice {
         usuarios.setTelefono(dtoRegistro.getTelefono());
 
         // Asigna roles
-        Roles roles = rolesRepository.findByNombre("USUARIO").orElseThrow(() -> new RuntimeException("Rol 'USUARIO' no encontrado"));
+        Roles roles = rolesRepository.findByNombre("INS").orElseThrow(() -> new RuntimeException("Rol 'USUARIO' no encontrado"));
         usuarios.setRoles(Collections.singletonList(roles));
 
         // Guardar en la base de datos

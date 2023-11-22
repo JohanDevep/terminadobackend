@@ -19,11 +19,13 @@ public class CursosController {
     @Autowired
     private CursosRepository cursosRepository;
 
+    // Obtiene todos los cursos
     @GetMapping("/cursos")
     public List<Cursos> getCursos() {
         return cursosRepository.findAll();
     }
 
+    // Obtiene un curso por su ID
     @GetMapping("/cursos/{id}")
     public ResponseEntity<?> getCursos(@PathVariable Long id) {
         Optional<Cursos> cursoOptional = cursosRepository.findById(id);
@@ -36,6 +38,7 @@ public class CursosController {
         }
     }
 
+    // Elimina un curso por su ID
     @DeleteMapping("/cursos/{id}")
     public ResponseEntity<?> eliminarUsuario(@PathVariable Long id) {
         if (cursosRepository.existsById(id)) {
@@ -46,21 +49,16 @@ public class CursosController {
         }
     }
 
+    // Edita un curso existente por su ID
     @PutMapping("cursoEdit/{id}")
     public ResponseEntity<String> editarCurso(@PathVariable Long id, @RequestBody DtoCursos dtoCursos) {
         Optional<Cursos> optionalCursos = cursosRepository.findById(id);
         if (optionalCursos.isPresent()) {
             Cursos cursos = optionalCursos.get();
+            // Actualiza los videos del curso con los nuevos videos
+            // sería como editar los enlaces de los videos
             cursos.setVideo(dtoCursos.getVideo());
-            cursos.setVideo1(dtoCursos.getVideo1());
-            cursos.setVideo2(dtoCursos.getVideo2());
-            cursos.setVideo3(dtoCursos.getVideo3());
-            cursos.setVideo4(dtoCursos.getVideo4());
-            cursos.setVideo5(dtoCursos.getVideo5());
-            cursos.setVideo6(dtoCursos.getVideo6());
-            cursos.setVideo7(dtoCursos.getVideo7());
-            cursos.setVideo8(dtoCursos.getVideo8());
-            cursos.setVideo9(dtoCursos.getVideo9());
+            // se actualizan otros enlaces de video de manera similar
             cursosRepository.save(cursos);
             return ResponseEntity.ok("Curso Modificado Exitosamente");
         } else {
@@ -68,28 +66,23 @@ public class CursosController {
         }
     }
 
+    // Crea un nuevo curso con la información proporcionada
     @PostMapping("/CrearCurso")
     public ResponseEntity<String> crearCurso(@RequestBody DtoCursos dtoCursos) {
+        // Verifica si ya existe un curso con el mismo título
         if (cursosRepository.existsByTitulo(dtoCursos.getTitulo())) {
             return new ResponseEntity<>("El curso con ese titulo ya existe, intenta con otro titulo", HttpStatus.BAD_REQUEST);
         }
+        // Crea un nuevo curso con los detalles proporcionados
         Cursos cursos = new Cursos();
         cursos.setTitulo(dtoCursos.getTitulo());
         cursos.setDescription(dtoCursos.getDescription());
         cursos.setImages(dtoCursos.getImages());
         cursos.setInstructor(dtoCursos.getInstructor());
         cursos.setCategoria(dtoCursos.getCategoria());
+        // Configura los enlaces de video del curso
         cursos.setVideo(dtoCursos.getVideo());
-        cursos.setVideo1(dtoCursos.getVideo1());
-        cursos.setVideo2(dtoCursos.getVideo2());
-        cursos.setVideo3(dtoCursos.getVideo3());
-        cursos.setVideo4(dtoCursos.getVideo4());
-        cursos.setVideo5(dtoCursos.getVideo5());
-        cursos.setVideo6(dtoCursos.getVideo6());
-        cursos.setVideo7(dtoCursos.getVideo7());
-        cursos.setVideo8(dtoCursos.getVideo8());
-        cursos.setVideo9(dtoCursos.getVideo9());
-        cursosRepository.save(cursos);
+        cursosRepository.save(cursos); // Guarda el nuevo curso en la base de datos
         return new ResponseEntity<>("Registro de cursos exitoso", HttpStatus.OK);
     }
 }

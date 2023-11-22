@@ -1,5 +1,7 @@
 package com.backendfunda.backendfunda.controller;
-import java.util.Map;
+
+import java.util.List;
+import java.util.Optional;
 import com.backendfunda.backendfunda.dtos.DtoInstructores;
 import com.backendfunda.backendfunda.model.Instructores;
 import com.backendfunda.backendfunda.repository.InstructoresRepository;
@@ -9,23 +11,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
-import java.util.Optional;
-
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/api/auth/")
-
 public class InstructoresController {
 
     @Autowired
     private InstructoresRepository instructoresRepository;
 
+    // Obtiene todos los instructores
     @GetMapping("/Instructores")
     public List<Instructores> getInstructores() {
         return instructoresRepository.findAll();
     }
 
+    // Crea un nuevo instructor
     @PostMapping("/CrearInstructor")
     public ResponseEntity<String> crearInstructores(@RequestBody DtoInstructores dtoInstructores) {
         if (instructoresRepository.existsBynombre(dtoInstructores.getNombre())) {
@@ -41,36 +41,35 @@ public class InstructoresController {
         return new ResponseEntity<>("Se Registro Exitosamente El Instructor", HttpStatus.OK);
     }
 
+    // Elimina un instructor por su ID
     @DeleteMapping("/instructores/eliminar/{instructorId}")
     public ResponseEntity<String> eliminarInstructor(@PathVariable Long instructorId) {
-        // Verifica si el instructor existe
         if (!instructoresRepository.existsById(instructorId)) {
             return new ResponseEntity<>("Instructor no encontrado", HttpStatus.NOT_FOUND);
         }
-        // Elimina el instructor
         instructoresRepository.deleteById(instructorId);
         return new ResponseEntity<>("Instructor eliminado exitosamente", HttpStatus.OK);
     }
 
+    // Edita un instructor por su ID
     @PutMapping("/instructores/editar/{instructorId}")
     public ResponseEntity<String> editarInstructor(
             @PathVariable Long instructorId,
             @RequestBody DtoInstructores dtoInstructores
     ) {
         try {
-            // Obtén el instructor por su ID
             Optional<Instructores> optionalInstructor = instructoresRepository.findById(instructorId);
 
             if (optionalInstructor.isPresent()) {
                 Instructores instructor = optionalInstructor.get();
 
-                // Verifica si el nombre ya existe para otro instructor
                 String nuevoNombre = dtoInstructores.getNombre();
                 if (!nuevoNombre.equals(instructor.getNombre()) && instructoresRepository.existsByNombre(nuevoNombre)) {
+                    // Verifica si el nombre ya existe para otro instructor
                     throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Ya existe un instructor con el nombre '" + nuevoNombre + "'. Intenta con otro nombre");
                 }
 
-                // Actualiza todos los campos del instructor con los valores del DTO
+                // Actualiza los detalles del instructor con la información proporcionada
                 instructor.setTitulos(dtoInstructores.getTitulos());
                 instructor.setImages(dtoInstructores.getImages());
                 instructor.setDescription(dtoInstructores.getDescription());

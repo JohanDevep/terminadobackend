@@ -27,13 +27,16 @@ public class CustomUsersDetailsService implements UserDetailsService{
     }
     //Método para traernos una lista de autoridades por medio de una lista de roles
     public Collection<GrantedAuthority> mapToAuthorities(List<Roles> roles)
+    // Mapea los nombres de los roles a autoridades (SimpleGrantedAuthority)
     {
         return roles.stream().map(role -> new SimpleGrantedAuthority(role.getNombre())).collect(Collectors.toList());
     }
     //Método para traernos un usuario con todos sus datos por medio de sus username
     @Override
     public UserDetails loadUserByUsername(String correo) throws UsernameNotFoundException {
+        // Busca al usuario por su correo en la base de datos
         Usuarios usuarios = usuariosRepo.findByCorreo(correo).orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+        // Retorna un UserDetails (detalles del usuario) usando la información obtenida de la base de datos
         return new User(usuarios.getCorreo(), usuarios.getPassword(), mapToAuthorities(usuarios.getRoles()));
     }
 }

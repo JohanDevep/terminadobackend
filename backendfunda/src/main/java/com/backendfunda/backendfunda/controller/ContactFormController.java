@@ -26,17 +26,18 @@ public class ContactFormController {
     @Value("${spring.mail.username}")
     private String emailFrom;
 
-    // Método para enviar una respuesta predeterminada con diseño personalizado
+    // Metodo para enviar el correo con un diseño
     private void sendDefaultResponse(String recipientEmail) {
+        // Crear un objeto que permita multimedia y texto para el correo electrónico
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, "utf-8");
 
         try {
-            helper.setFrom(emailFrom);
-            helper.setTo(recipientEmail);
-            helper.setSubject("Pronto estaremos en contacto contigo");
+            helper.setFrom(emailFrom); // Establecer el que envia el correo
+            helper.setTo(recipientEmail); // Establecer al q le llegue el correo
+            helper.setSubject("Pronto estaremos en contacto contigo"); // Establecer el asunto en el correo
 
-            // HTML con diseño personalizado
+            // HTML con diseño para el correo
             String htmlContent = "<html>"
                     + "<head>"
                     + "<style>"
@@ -54,17 +55,18 @@ public class ContactFormController {
                     + "</body>"
                     + "</html>";
 
-            helper.setText(htmlContent, true);
-            javaMailSender.send(message);
+            helper.setText(htmlContent, true); // Establecer el contenido del correo como HTML
+            javaMailSender.send(message); // Enviar el correo electrónico
         } catch (MessagingException e) {
             e.printStackTrace();
             // Manejar la excepción en caso de un error en el envío del correo
         }
     }
 
+    // Endpoint para manejar la solicitud POST para enviar un mensaje
     @PostMapping("/enviarMensaje")
     public ResponseEntity<String> enviarMensaje(@RequestBody ContactForm contactForm) {
-        // Valida los datos del formulario
+        // Validar los datos del formulario
         if (contactForm.getEmail() == null || contactForm.getEmail().isEmpty()) {
             return ResponseEntity.badRequest().body("El campo de correo electrónico es obligatorio");
         }
@@ -75,21 +77,21 @@ public class ContactFormController {
             return ResponseEntity.badRequest().body("El campo de mensaje es obligatorio");
         }
 
-        // Envía un correo electrónico con los datos del formulario
+        // Crear un nuevo objeto SimpleMailMessage para enviar el correo electrónico
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(emailFrom);  // Usar la dirección configurada
-        message.setTo(contactForm.getEmail());  // Usar la dirección proporcionada en el formulario
-        message.setSubject(contactForm.getSubject());
-        message.setText(contactForm.getMessage());
+        message.setFrom(emailFrom); // Usar la dirección configurada como remitente
+        message.setTo(contactForm.getEmail()); // Usar la dirección proporcionada en el formulario como destinatario
+        message.setSubject(contactForm.getSubject()); // Establecer el asunto del correo
+        message.setText(contactForm.getMessage()); // Establecer el mensaje del correo
 
-        javaMailSender.send(message);
+        javaMailSender.send(message); // Enviar el correo electrónico
 
-        //una respuesta al correo
+        // Enviar una respuesta predefinida al correo electrónico del remitente
         sendDefaultResponse(contactForm.getEmail());
 
-        // Guarda el formulario en la base de datos
+        // Guardar el formulario en la base de datos utilizando el repositorio
         contactFormRepository.save(contactForm);
 
-        return ResponseEntity.ok("Mensaje enviado correctamente");
+        return ResponseEntity.ok("Mensaje enviado correctamente"); // Respuesta exitosa
     }
 }

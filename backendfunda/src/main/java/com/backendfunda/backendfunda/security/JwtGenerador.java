@@ -29,7 +29,7 @@ public class JwtGenerador {
                 .signWith(SignatureAlgorithm.HS512, ConstantesSeguridad.JWT_FIRMA)
                 /*Utilizamos este método para firma nuestro token y de esta manera evitar la manipulación o modificación de este*/
                 .compact();
-                //Este método finaliza la construcción del token y lo convierte en una cadena compacta
+        //Este método finaliza la construcción del token y lo convierte en una cadena compacta
         return token;
     }
 
