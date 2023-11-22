@@ -11,8 +11,11 @@ import lombok.Setter;
 @Setter
 @Table(name = "users")
 public class User {
-
+    //Llave primaria de la tabla
     @Id
+    // @GeneratedValue se usa para generar numeros unicos en idCursos.
+    // GenerationType.IDENTITY se usa para que en la base de datos el idCursos
+    // asigne automaticamente numeros cada ves mas grande al registrar un nuevo curso
     @GeneratedValue
     private Long id;
 

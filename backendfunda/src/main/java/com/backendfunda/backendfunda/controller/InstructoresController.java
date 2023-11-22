@@ -47,10 +47,8 @@ public class InstructoresController {
         if (!instructoresRepository.existsById(instructorId)) {
             return new ResponseEntity<>("Instructor no encontrado", HttpStatus.NOT_FOUND);
         }
-
         // Elimina el instructor
         instructoresRepository.deleteById(instructorId);
-
         return new ResponseEntity<>("Instructor eliminado exitosamente", HttpStatus.OK);
     }
 

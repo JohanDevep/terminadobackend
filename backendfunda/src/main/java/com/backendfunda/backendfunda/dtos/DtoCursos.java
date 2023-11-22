@@ -22,8 +22,4 @@ public class DtoCursos {
     private String video7;
     private String video8;
     private String video9;
-
-
-
 }
-    

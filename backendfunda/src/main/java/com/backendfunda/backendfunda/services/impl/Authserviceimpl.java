@@ -39,27 +39,27 @@ public class Authserviceimpl implements Authservice {
     private UsuariosRepository usuariosRepository;
     @Autowired
     private JwtGenerador jwtGenerador;
-
+    // Implementacion del metodo para registrar un instructor
     @Override
     public ResponseEntity<?> registrarInst(@RequestBody DtoRegistro dtoRegistro) {
         Map<String, String> message = new HashMap<>();
-        // Validar confirmación de contraseña
+        // validacion de la contraseña
         if (!dtoRegistro.getPassword().equals(dtoRegistro.getConfirmarPassword())) {
             message.put("response", "Las contraseñas no coinciden.");
         }
-        // Validar si el correo ya existe en la base de datos
+        // validacion si existe un correo electronico
         if (usuariosRepository.existsByCorreo(dtoRegistro.getCorreo())) {
             message.put("response", "Ya existe un usuario con el correo proporcionado. Intenta con otro correo.");
         }
-        // Validar si el teléfono tiene 10 dígitos
+        // validar que el numero de telefono debe ser 10 digitos
         if (dtoRegistro.getTelefono().length() != 10) {
             message.put("response", "El número de teléfono debe tener 10 dígitos.");
         }
-        // Validar si el nombre de usuario ya existe en la base de datos
+       //validar que no exista el mismo nombre
         if (usuariosRepository.existsByNombre(dtoRegistro.getNombre())) {
             message.put("response", "Ya existe un usuario con el nombre proporcionado. Intenta con otro nombre de usuario.");
         }
-        // Validar que la contraseña tenga al menos un número y una mayúscula
+        // Validar que la contraseña tenga al un número y una mayúscula
         String password = dtoRegistro.getPassword();
         if (!password.matches(".*[0-9].*") || !password.matches(".*[A-Z].*")) {
             message.put("response", "La contraseña debe contener al menos un número y una mayúscula.");
@@ -75,7 +75,7 @@ public class Authserviceimpl implements Authservice {
         usuarios.setCorreo(dtoRegistro.getCorreo());
         usuarios.setTelefono(dtoRegistro.getTelefono());
 
-        // Asignar roles
+        // Asigna roles
         Roles roles = rolesRepository.findByNombre("USUARIO").orElseThrow(() -> new RuntimeException("Rol 'USUARIO' no encontrado"));
         usuarios.setRoles(Collections.singletonList(roles));
 
@@ -85,9 +85,10 @@ public class Authserviceimpl implements Authservice {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
     @Override
+    // metodo para registrar un nuevo administrador
     public ResponseEntity<?> registrar(@RequestBody DtoRegistro dtoRegistro) {
         Map<String, String> message = new HashMap<>();
-        // Validar confirmación de contraseña
+        // Validar  contraseña
         if (!dtoRegistro.getPassword().equals(dtoRegistro.getConfirmarPassword())) {
             message.put("response", "Las contraseñas no coinciden.");
         }
@@ -95,7 +96,7 @@ public class Authserviceimpl implements Authservice {
         if (usuariosRepository.existsByCorreo(dtoRegistro.getCorreo())) {
             message.put("response", "Ya existe un usuario con el correo proporcionado. Intenta con otro correo.");
         }
-        // Validar si el teléfono tiene 10 dígitos
+        // Validar si el telefono tiene 10 digitos
         if (dtoRegistro.getTelefono().length() != 10) {
             message.put("response", "El número de teléfono debe tener 10 dígitos.");
         }
@@ -103,7 +104,7 @@ public class Authserviceimpl implements Authservice {
         if (usuariosRepository.existsByNombre(dtoRegistro.getNombre())) {
             message.put("response", "Ya existe un usuario con el nombre proporcionado. Intenta con otro nombre de usuario.");
         }
-        // Validar que la contraseña tenga al menos un número y una mayúscula
+        // Validar que la contraseña tenga un número y una mayúscula
         String password = dtoRegistro.getPassword();
         if (!password.matches(".*[0-9].*") || !password.matches(".*[A-Z].*")) {
             message.put("response", "La contraseña debe contener al menos un número y una mayúscula.");
@@ -129,6 +130,7 @@ public class Authserviceimpl implements Authservice {
         return new ResponseEntity<>(message, HttpStatus.OK);
     }
     @Override
+    // metodo para obtener todos los usuarios registrados
     public ResponseEntity<?> login(@RequestBody DtoLogin dtoLogin) {
         try {
             // Intentar autenticar al usuario
@@ -162,8 +164,8 @@ public class Authserviceimpl implements Authservice {
             return new ResponseEntity<>("Correo y/o contraseña incorrectos", HttpStatus.UNAUTHORIZED);
         }
     }
-
     @Override
+    // metodo para obtener la información de un usuario específico
     public ResponseEntity<String> registrarAdmin(@RequestBody DtoRegistro dtoRegistro) {
         if (usuariosRepository.existsByNombre(dtoRegistro.getNombre())) {
             return new ResponseEntity<>("el usuario ya existe, intenta con otro", HttpStatus.BAD_REQUEST);
@@ -183,6 +185,7 @@ public class Authserviceimpl implements Authservice {
     public List<Usuarios> getAllUsers(){
         return usuariosRepository.findAll();
     }
+    // metodo para obtener el perfil de un usuario autenticado
     @Override
     public ResponseEntity<?> getEmployee(@PathVariable Long id){
         try {
@@ -216,23 +219,30 @@ public class Authserviceimpl implements Authservice {
             return ResponseEntity.notFound().build();
         }
     }
+    // metodo para editar el perfil de un usuario autenticado
     @Override
     public ResponseEntity<Object> editarPerfil(@RequestBody DtoPerfil dtoPerfil, Principal principal){
         try {
+            //obtiene el nombre de usuario
             String nombreDeUsuario = principal.getName();
+            // Buscar el perfil del usuario por su correo electrónico
             Optional<Usuarios> optionalUserProfile = usuariosRepository.findByCorreo(nombreDeUsuario);
             if (optionalUserProfile.isPresent()){
+                // Obtener el objeto de perfil del usuario
                 Usuarios userProfile = optionalUserProfile.get();
                 String telefono = dtoPerfil.getTelefono();
+                // Validar y poder actualizar el teléfono
                 if (telefono != null && telefono.length() == 10){
                     userProfile.setTelefono(telefono);
                 } else {
                     return ResponseEntity.badRequest().body("Verifica el numero telefonico");
                 }
+                // Validar y actualizar el correo
                 String nuevoCorreo = dtoPerfil.getCorreo();
                 if (!nuevoCorreo.equals(userProfile.getCorreo()) && usuariosRepository.existsByCorreo(nuevoCorreo)){
                     return ResponseEntity.status(HttpStatus.CONFLICT).body("El correo ya existe en la base de datos");
                 }
+                // Actualiza otros campos del perfil
                 userProfile.setNombre(dtoPerfil.getNombre());
                 userProfile.setApellido(dtoPerfil.getApellido());
                 userProfile.setCorreo(nuevoCorreo);
@@ -251,14 +261,14 @@ public class Authserviceimpl implements Authservice {
                         perfilActualizado.getImagen(),
                         perfilActualizado.getRoles().get(0).getNombre()
                 );
+                // Retorna la respuesta exitosa con el DTO actualizado
                 return ResponseEntity.ok(perfilActualizadoDto);
-
-
             } else {
+                // Si no se encuentra el perfil, retornar una respuesta de no encontrado
                 return ResponseEntity.notFound().build();
-
             }
         } catch (Exception e){
+            // Manejar excepciones y retornar una respuesta de error interno del servidor
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al modificar el perfil");
         }

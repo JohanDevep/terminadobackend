@@ -14,7 +14,12 @@ import java.sql.Blob;
 @Entity
 @Table(name = "instructores")
 public class Instructores {
+    //Llave primaria de la tabla
     @Id
+    // @GeneratedValue se usa para generar numeros unicos en idCursos.
+    // GenerationType.IDENTITY se usa para que en la base de datos el idCursos
+    // asigne automaticamente numeros cada ves mas grande al registrar un nuevo curso
+
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_instructores")
     private Long idInstructores;
